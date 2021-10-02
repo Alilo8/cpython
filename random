@@ -1,0 +1,138 @@
+from tkinter import *
+def drawTracing(myCanvas,state,myInput,x,y,k,n):
+   j=50
+   if state == 'q0':
+      if(k==0):
+         myCanvas.create_line(x+20,y+77.5,x+50,y+77.5,arrow='last')
+      myCanvas.create_oval(x+j,y+50,x+j+50,y+100)
+      myCanvas.create_text((2*j+50)/2+x,y+150/2,text = 'q0')
+      myCanvas.create_arc(x+j+42,y+55,x+j+145,y+102,start = 30, extent=120,style='arc')
+      if myInput == 'a':
+         myCanvas.create_text((2*j+200)/2+x,y+45,text = 'a')
+      else:
+         myCanvas.create_text((2*j+200)/2+x,y+45,text = 'b')
+      myCanvas.create_line(x+j+143,y+72,x+j+144,y+73,arrow='last')      
+      j=j+144
+      myCanvas.create_oval(x+j,y+50,x+j+50,y+100)
+      if k==n-1:
+         myCanvas.create_oval(x+j+5,y+50+5,x+j+45,y+95)
+      myCanvas.create_text((2*j+50)/2+x,y+150/2,text = 'q1')
+   elif state == 'q1':
+      myCanvas.create_oval(x+j,y+50,x+j+50,y+100)
+      myCanvas.create_text((2*j+50)/2+x,y+150/2,text = 'q0')      
+      j=j+144
+      myCanvas.create_oval(x+j,y+50,x+j+50,y+100)
+      if k==n-1:
+         myCanvas.create_oval(x+j+5,y+50+5,x+j+45,y+95)
+      myCanvas.create_text((2*j+50)/2+x,y+150/2,text = 'q1')
+      myCanvas.create_arc(x+j-135+42,y+55,x+j-135+145,y+102,start = 210, extent=120,style='arc')
+      if myInput == 'a':
+         myCanvas.create_text((2*(j-144)+200)/2+x,110+y,text = 'a')
+      else:
+         myCanvas.create_text((2*(j-144)+200)/2+x,110+y,text = 'b')
+      myCanvas.create_line(j-94+x,82+y,j-93+x,83+y,arrow='first')
+def close_window():
+   root.destroy()
+
+def drawFA():
+
+   button = Button(text = "Click and Quit", command = close_window)
+   button.pack()
+   myCanvas = Canvas(root,width=800,height=500)
+   myCanvas.pack(pady = 100)
+   myCanvas.create_text(100,10,text='R.E = (a+b)(aa+ab+ba+bb)*')
+   j=50
+   n=2
+   i=0
+   while i<n:
+      if i==0:
+         myCanvas.create_line(20,77.5,50,77.5,arrow='last')
+         myCanvas.create_oval(j,50,j+50,100)
+         myCanvas.create_text((2*j+50)/2,150/2,text = 'q'+str(i))
+      else:
+         myCanvas.create_oval(j,50,j+50,100)
+         myCanvas.create_oval(j+5,50+5,j+45,95)
+         myCanvas.create_text((2*j+50)/2,150/2,text = 'q'+str(i))
+         
+      if i==0:
+         myCanvas.create_arc(j+42,55,j+145,102,start = 30, extent=120,style='arc')
+         myCanvas.create_text((2*j+200)/2,45,text = 'a,b')
+         myCanvas.create_line(j+143,72,j+144,73,arrow='last')
+      else:
+         myCanvas.create_arc(j-135+42,55,j-135+145,102,start = 210, extent=120,style='arc')
+         myCanvas.create_text((2*(j-144)+200)/2,110,text = 'a,b')
+         myCanvas.create_line(j-94,82,j-93,83,arrow='first')
+      i=i+1
+      j=j+144
+
+
+class State:
+   def __init__(self,name,initial,final):
+     self.name =  name
+     self.a = None
+     self.b = None
+     self.initial = initial
+     self.final = final
+   def aGet(self):
+      return 'a'
+   def bGet(self):
+      return 'b'
+#Regular Expression
+print('R.E = (a+b)(aa+ab+ba+bb)*')
+
+#FA definition
+q0 = State('q0',True,False)
+q1 = State('q1',False,True)
+q0.a = q1
+q0.b = q1
+q1.a = q0
+q1.b = q0
+
+#Drawing FA
+
+root = Tk()
+root.geometry("800x600")
+drawFA()
+root.mainloop()
+#Checking the input string
+string = ' '
+while string:
+   string = input("\nEnter a string to check: ")
+   if string == '':
+      break
+   n=len(string)
+   root = Tk()
+   root.geometry("800x600")
+   myCanvas = Canvas(root,width=800,height=600)
+   myCanvas.pack()
+   myCanvas.create_text(100,10,text='String = '+string)
+   x=0
+   y=0
+   head = q0
+   string1=''
+   k=0
+   for i in string:
+      if i == head.aGet():
+         drawTracing(myCanvas,head.name,'a',x,y,k,n)
+         head = head.a
+         print('Pointer goes to '+head.name)
+         string1 = string1+i
+         print('String = '+string1)
+      elif i == head.bGet():
+         drawTracing(myCanvas,head.name,'b',x,y,k,n)
+         head = head.b
+         print('Pointer goes to '+head.name)
+         string1 = string1+i
+         print('String = '+string1)
+      y=y+80
+      if (k+1)%7==0:
+         x=x+210
+         y=0
+      k=k+1
+   if head.final == True:
+      print(head.name+' is a final state')
+      print('String accepted!!!')
+   else:
+      print(head.name+' is not a final state')
+      print('String rejected')
+   root.mainloop()
